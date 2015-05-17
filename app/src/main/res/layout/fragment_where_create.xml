@@ -1,0 +1,101 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="com.android.arthlimchiu.where.WhereCreateFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_where_create_placeNameTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/place_title"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/fragment_where_create_placeNameDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/place_hint"
+            android:textAppearance="?android:textAppearanceSmall"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_where_create_addressTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/address_title"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/fragment_where_create_addressDesc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/address_hint"
+                android:textAppearance="?android:textAppearanceSmall"/>
+
+            <Button
+                android:id="@+id/fragment_where_create_changeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/change"
+                android:textColor="@color/ColorAccent"
+                android:textAppearance="?android:textAppearanceSmall"
+                style="?android:attr/borderlessButtonStyle"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_where_create_coordinatesTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/coordinates_title"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/fragment_where_create_latitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/latitude_hint"
+            android:textAppearance="?android:textAppearanceSmall"/>
+
+        <TextView
+            android:id="@+id/fragment_where_create_longitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/longitude_hint"
+            android:textAppearance="?android:textAppearanceSmall"/>
+
+    </LinearLayout>
+</LinearLayout>

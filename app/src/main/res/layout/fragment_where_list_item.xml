@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:paddingTop="20dp"
+              android:paddingBottom="20dp"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_where_list_item_placeName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="1"
+            android:text="Name of the place"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/fragment_where_list_item_timestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha=".54"
+            android:text="9:00 AM-10:00 AM"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/fragment_where_list_item_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:alpha=".54"
+        android:text="1 hr"
+        android:textSize="14sp"
+        android:gravity="center"/>
+
+
+</LinearLayout>

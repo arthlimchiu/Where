@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Where</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="insert_where">Insert</string>
+    <string name="place_title">Place Name</string>
+    <string name="place_hint">Name of the place</string>
+    <string name="address_title">Address</string>
+    <string name="address_hint">Fetching address. Please wait a moment.</string>
+    <string name="coordinates_title">Coordinates</string>
+    <string name="latitude_hint">Latitude</string>
+    <string name="longitude_hint">Longitude</string>
+    <string name="change_location">Change Location</string>
+
+    <string name="no_data">No data</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_where_detail">WhereDetailActivity</string>
+    <string name="title_activity_where_create">WhereCreateActivity</string>
+    <string name="title_activity_where_map">WhereMapActivity</string>
+
+    <string name="save">Save</string>
+
+    <string name="change">Change</string>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string-array name="drawer_items">
+        <item>Tracks</item>
+        <item>Places</item>
+        <item>Settings</item>
+        <item>Feedback</item>
+    </string-array>
+    <string name="title_activity_where_place">WherePlaceActivity</string>
+    <string name="title_activity_where">WhereActivity</string>
+</resources>

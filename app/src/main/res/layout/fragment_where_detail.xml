@@ -1,0 +1,83 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="com.android.arthlimchiu.where.WhereDetailFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_where_detail_placeNameTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/place_title"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/fragment_where_detail_placeNameDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/place_hint"
+            android:textAppearance="?android:textAppearanceSmall"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_where_detail_addressTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/address_title"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/fragment_where_detail_addressDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/address_hint"
+            android:textAppearance="?android:textAppearanceSmall"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_where_detail_coordinatesTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/coordinates_title"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/fragment_where_detail_latitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/latitude_hint"
+            android:textAppearance="?android:textAppearanceSmall"/>
+
+        <TextView
+            android:id="@+id/fragment_where_detail_longitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/longitude_hint"
+            android:textAppearance="?android:textAppearanceSmall"/>
+
+    </LinearLayout>
+</LinearLayout>
