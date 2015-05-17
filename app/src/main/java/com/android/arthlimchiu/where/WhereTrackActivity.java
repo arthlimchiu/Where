@@ -105,21 +105,29 @@ public class WhereTrackActivity extends ActionBarActivity {
 
         if (!getSharedPreferences("Preferences", 0).getBoolean("ison", false)) {
             Toast.makeText(this, "It is not on", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(this, NewTrackService.class);
+            startService(intent);
+
             getSharedPreferences("Preferences", 0)
                     .edit()
                     .putBoolean("ison", true)
                     .commit();
-            Intent intent = new Intent(this, NewTrackService.class);
-            PendingIntent pi = PendingIntent.getService(this, 0, intent, 0);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR_OF_DAY, 1);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pi);
+            setUpNewTrackAlarm();
         }
+    }
+
+    private void setUpNewTrackAlarm() {
+        Intent newTrackIntent = new Intent(this, NewTrackService.class);
+        PendingIntent pi = PendingIntent.getService(this, 0, newTrackIntent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 1);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pi);
     }
 
     @Override

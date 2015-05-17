@@ -89,10 +89,17 @@ public class WhereListFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = new String[]{"wheres."+WhereTable.COLUMN_ID, WhereTable.COLUMN_TIME_IN, WhereTable.COLUMN_TIME_OUT,
-                WhereTable.COLUMN_TRACK_ID, WhereTable.COLUMN_PLACE_ID, WhereTable.COLUMN_STATUS, PlaceTable.COLUMN_PLACE_NAME};
+        String[] projection = new String[]{"wheres."+WhereTable.COLUMN_ID,
+                WhereTable.COLUMN_TIME_IN, WhereTable.COLUMN_TIME_OUT,
+                WhereTable.COLUMN_TRACK_ID, WhereTable.COLUMN_PLACE_ID,
+                WhereTable.COLUMN_STATUS, PlaceTable.COLUMN_PLACE_NAME};
+        String selection = WhereTable.COLUMN_TRACK_ID + "=? AND " +
+                WhereTable.COLUMN_PLACE_ID +
+                "=" +
+                "places." + PlaceTable.COLUMN_ID;
         String[] selectionArgs = new String[]{String.valueOf(trackId)};
-        CursorLoader cursorLoader = new CursorLoader(getActivity(), WhereContentProvider.CONTENT_URI_WHERES, projection, null, selectionArgs, null);
+
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), WhereContentProvider.CONTENT_URI_WHERES, projection, selection, selectionArgs, null);
 
         return cursorLoader;
     }
@@ -158,7 +165,7 @@ public class WhereListFragment extends Fragment implements LoaderManager.LoaderC
                         new SimpleDateFormat("h:mm a", Locale.getDefault()).format(timeOut);
 
                 hrs = TimeUnit.MILLISECONDS.toHours(totalTime);
-                mins = TimeUnit.MILLISECONDS.toMinutes(totalTime);
+                mins = TimeUnit.MILLISECONDS.toMinutes(totalTime) % 60;
                 sec = totalTime / 1000 % 60;
             }
 

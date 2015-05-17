@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="com.android.arthlimchiu.where"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="com.android.arthlimchiu.where"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <permission
         android:name="com.android.arthlimchiu.where.permission.MAPS_RECEIVE"
         android:protectionLevel="signature"/>
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <uses-permission android:name="com.android.arthlimchiu.where.permission.MAPS_RECEIVE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -38,37 +39,30 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
             android:name=".WhereDetailActivity"
             android:label="@string/title_activity_where_detail">
         </activity>
-
         <activity
             android:name=".WhereNewPlaceActivity"
             android:label="@string/title_activity_where_create"
             android:parentActivityName=".WherePlaceActivity">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".WherePlaceActivity"/>
         </activity>
-
         <activity
             android:name=".WhereActivity"
             android:label="@string/title_activity_where"
             android:parentActivityName=".WhereTrackActivity">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".WhereTrackActivity"/>
         </activity>
-
         <activity
             android:name=".WhereMapActivity"
             android:label="@string/title_activity_where_map">
         </activity>
-
         <activity
             android:name=".WherePlaceActivity"
             android:label="@string/title_activity_where_place">
@@ -89,8 +83,15 @@
 
         <provider
             android:name=".contentprovider.WhereContentProvider"
-            android:authorities="com.android.arthlimchiu.where.contentprovider"/>
+            android:authorities="com.android.arthlimchiu.where.contentprovider"
+            android:exported="false"/>
 
+        <receiver
+            android:name=".receivers.BootCompletedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -27,7 +27,7 @@ public class WhereTable {
             + COLUMN_TIME_IN + " integer, "
             + COLUMN_TIME_OUT + " integer, "
             + COLUMN_TIME_STAYED + " integer, "
-            + COLUMN_STATUS + " integer, "
+            + COLUMN_STATUS + " integer default 0, "
             + "FOREIGN KEY(" + COLUMN_TRACK_ID + ") REFERENCES " + TrackTable.TABLE_TRACK + "(" + TrackTable.COLUMN_ID + "),"
             + "FOREIGN KEY(" + COLUMN_PLACE_ID + ") REFERENCES " + PlaceTable.TABLE_PLACE + "(" + PlaceTable.COLUMN_ID + ")"
             + ")";

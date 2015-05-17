@@ -69,7 +69,6 @@ public class WhereContentProvider extends ContentProvider   {
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
             case TRACKS:
-                // No filter
                 builder.setTables(TrackTable.TABLE_TRACK);
                 break;
             case TRACK_ID:
@@ -78,7 +77,6 @@ public class WhereContentProvider extends ContentProvider   {
                 builder.appendWhere(TrackTable.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             case PLACES:
-                // No filter
                 builder.setTables(PlaceTable.TABLE_PLACE);
                 break;
             case PLACE_ID:
@@ -87,11 +85,7 @@ public class WhereContentProvider extends ContentProvider   {
                 builder.appendWhere(PlaceTable.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             case WHERES:
-                // No filter
-                //builder.setTables(WhereTable.TABLE_WHERE);
                 builder.setTables(WhereTable.TABLE_WHERE + ", " + PlaceTable.TABLE_PLACE);
-                builder.appendWhere(WhereTable.COLUMN_TRACK_ID + "=? AND " + WhereTable.COLUMN_PLACE_ID + "=" + "places." + PlaceTable.COLUMN_ID);
-                //builder.appendWhere(WhereTable.COLUMN_TRACK_ID + "=?");
                 break;
             case WHERE_ID:
                 // adding the ID to the original query
