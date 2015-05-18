@@ -31,6 +31,7 @@ public class NewTrackService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
         int trackId = getSharedPreferences("systemvars", MODE_PRIVATE).getInt("last_track_id", 0);
 
         if (trackId == 0) {

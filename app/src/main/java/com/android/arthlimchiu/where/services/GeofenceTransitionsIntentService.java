@@ -56,7 +56,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
             for (Geofence geofence : triggeringGeofences) {
 
-                if (getWhereStatus(lastTrackId, geofence.getRequestId()) == 0) {
+                if (getWhereStatus(lastTrackId, geofence.getRequestId()) == 0 || getWhereStatus(lastTrackId, geofence.getRequestId()) == -1) {
                     cursor = getContentResolver().query(Uri.withAppendedPath(WhereContentProvider.CONTENT_URI_PLACES, geofence.getRequestId()), projection, null, null, null);
                     long timeIn = Calendar.getInstance().getTimeInMillis();
 
@@ -74,7 +74,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
                         getSharedPreferences("systemvars", MODE_PRIVATE).edit().putInt("current_where_id", Integer.parseInt(uri.getLastPathSegment())).commit();
                     }
                 }
-
             }
             if (cursor != null) {
                 cursor.close();
@@ -118,15 +117,18 @@ public class GeofenceTransitionsIntentService extends IntentService {
         String whereSelection = WhereTable.COLUMN_TRACK_ID + "=? AND " +
                 WhereTable.COLUMN_PLACE_ID +
                 "=" +
-                "places." + requestId;
+                requestId;
         String[] whereSelectionArgs = new String[]{String.valueOf(trackId)};
         Cursor whereCursor = getContentResolver().query(WhereContentProvider.CONTENT_URI_WHERES, whereProjection, whereSelection, whereSelectionArgs, null);
 
-        int status = whereCursor.getInt(whereCursor.getColumnIndex(WhereTable.COLUMN_STATUS));
+        if (whereCursor.moveToFirst()) {
+            int status = whereCursor.getInt(whereCursor.getColumnIndex(WhereTable.COLUMN_STATUS));
+            whereCursor.close();
 
-        whereCursor.close();
+            return status;
+        }
 
-        return status;
+        return -1;
     }
 
     private void generateNotification(String tickerText, String contentTitle, String contentText) {
