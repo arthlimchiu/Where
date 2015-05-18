@@ -1,6 +1,7 @@
 package com.android.arthlimchiu.where;
 
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +64,8 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
 
     double latitude, longitude;
 
+    boolean canSave;
+
     private AddressReceiver mReceiver;
 
     public WhereNewPlaceFragment() {
@@ -72,6 +75,8 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        canSave = false;
 
         mReceiver = new AddressReceiver(new Handler());
 
@@ -105,6 +110,12 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.save_changes).setVisible(canSave);
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_where_new_place, menu);
@@ -114,11 +125,15 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_changes:
-                saveChanges();
-                loadGeofences();
-                hideKeyboard();
-                getActivity().finish();
-                return true;
+                if (mPlaceNameEt.getText().toString().equals("")) {
+                    showDialog();
+                } else {
+                    saveChanges();
+                    loadGeofences();
+                    hideKeyboard();
+                    getActivity().finish();
+                    return true;
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -231,6 +246,17 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
         getActivity().startService(intent);
     }
 
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setMessage(R.string.empty_place_name);
+        builder.setPositiveButton(R.string.ok, null);
+
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
+    }
+
     private void hideKeyboard() {
         InputMethodManager ime = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         ime.hideSoftInputFromWindow(mPlaceNameEt.getWindowToken(), 0);
@@ -244,6 +270,14 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == FAILURE_RESULT) {
+                canSave = false;
+                getActivity().invalidateOptionsMenu();
+            } else if (resultCode == SUCCESS_RESULT) {
+                canSave = true;
+                getActivity().invalidateOptionsMenu();
+            }
+
             mAddressTv.setText(resultData.getString(RESULT_DATA_KEY));
         }
     }
