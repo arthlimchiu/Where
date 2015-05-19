@@ -15,19 +15,19 @@ public class WhereNewPlaceActivity extends ActionBarActivity {
         setContentView(R.layout.activity_where_new_place);
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.activity_where_create_app_bar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
 
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.fragment_where_create_container);
+        Fragment fragment = fm.findFragmentById(R.id.fragment_where_new_place_container);
 
         if (fragment == null) {
             fragment = new WhereNewPlaceFragment();
             fm.beginTransaction()
-                    .add(R.id.fragment_where_create_container, fragment)
+                    .add(R.id.fragment_where_new_place_container, fragment)
                     .commit();
         }
     }

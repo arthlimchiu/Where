@@ -4,4 +4,7 @@
     <color name="ColorPrimaryDark">#303F9F</color>
     <color name="ColorAccent">#F50057</color>
     <color name="ColorAccentDark">#C51162</color>
+
+    <color name="searchToolbarColor">#FFFFFF</color>
+    <color name="circle_fill_color">#C5CAE9</color>
 </resources>

@@ -11,7 +11,8 @@
     <string name="coordinates_title">Coordinates</string>
     <string name="latitude_hint">Latitude</string>
     <string name="longitude_hint">Longitude</string>
-    <string name="change_location">Change Location</string>
+    <string name="change_location">Find via Map</string>
+    <string name="find_nearby">Find Nearby Places</string>
 
     <string name="no_data">No data</string>
     <string name="empty_place_name">Please enter the name of the place</string>

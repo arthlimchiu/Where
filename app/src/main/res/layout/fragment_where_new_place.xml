@@ -31,10 +31,19 @@
         />
 
     <Button
+        android:id="@+id/fragment_where_new_place_nearby"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/find_nearby"
+        android:textColor="@color/ColorAccent"
+        style="?android:attr/borderlessButtonStyle"/>
+
+    <Button
         android:id="@+id/fragment_where_new_place_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/change_location"
         android:textColor="@color/ColorAccent"
         style="?android:attr/borderlessButtonStyle"/>

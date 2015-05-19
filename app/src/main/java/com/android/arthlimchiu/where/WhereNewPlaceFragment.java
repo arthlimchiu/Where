@@ -1,6 +1,7 @@
 package com.android.arthlimchiu.where;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.os.ResultReceiver;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,16 +25,22 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.arthlimchiu.where.contentprovider.WhereContentProvider;
 import com.android.arthlimchiu.where.database.PlaceTable;
 import com.android.arthlimchiu.where.services.FetchAddressIntentService;
 import com.android.arthlimchiu.where.services.LoadGeofencesIntentService;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
 import java.util.Date;
 
@@ -54,9 +62,11 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
 
+    private static final int REQUEST_PLACE_PICKER = 1;
+
     private EditText mPlaceNameEt;
     private TextView mAddressTv;
-    private Button mChngLocBtn;
+    private Button mChngLocBtn, mFindNearby;
 
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -105,8 +115,40 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
                 startActivity(intent);
             }
         });
+        mChngLocBtn.setVisibility(View.INVISIBLE);
+        mFindNearby = (Button) v.findViewById(R.id.fragment_where_new_place_nearby);
+        mFindNearby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+                    Intent intent = intentBuilder.build(getActivity());
+
+                    startActivityForResult(intent, REQUEST_PLACE_PICKER);
+                } catch (GooglePlayServicesRepairableException e) {
+                    GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), getActivity(), 0);
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    Toast.makeText(getActivity(), "Google Play Services is not available.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         return v;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_PLACE_PICKER) {
+            if (resultCode == Activity.RESULT_OK) {
+                Place place = PlacePicker.getPlace(data, getActivity());
+
+                if (!TextUtils.isEmpty(place.getAddress())) {
+                    mAddressTv.setText(place.getAddress());
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
@@ -272,9 +314,11 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == FAILURE_RESULT) {
                 canSave = false;
+                mChngLocBtn.setVisibility(View.INVISIBLE);
                 getActivity().invalidateOptionsMenu();
             } else if (resultCode == SUCCESS_RESULT) {
                 canSave = true;
+                mChngLocBtn.setVisibility(View.VISIBLE);
                 getActivity().invalidateOptionsMenu();
             }
 

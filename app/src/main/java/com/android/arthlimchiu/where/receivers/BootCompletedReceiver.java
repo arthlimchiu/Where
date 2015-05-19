@@ -3,14 +3,18 @@ package com.android.arthlimchiu.where.receivers;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 
 import com.android.arthlimchiu.where.WhereTrackActivity;
+import com.android.arthlimchiu.where.contentprovider.WhereContentProvider;
+import com.android.arthlimchiu.where.database.PlaceTable;
 import com.android.arthlimchiu.where.services.LoadGeofencesIntentService;
 import com.android.arthlimchiu.where.services.NewTrackService;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 

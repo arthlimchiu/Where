@@ -5,9 +5,7 @@
               android:orientation="vertical"
               tools:context="com.android.arthlimchiu.where.WhereActivity">
 
-    <include
-        android:id="@+id/activity_where_app_bar"
-        layout="@layout/app_bar"/>
+    <include layout="@layout/app_bar"/>
 
     <FrameLayout
         android:id="@+id/fragment_where_container"

@@ -141,8 +141,6 @@ public class WhereListFragment extends Fragment implements LoaderManager.LoaderC
 
             long timeIn = cursor.getLong(cursor.getColumnIndex(WhereTable.COLUMN_TIME_IN));
             long timeOut = cursor.getLong(cursor.getColumnIndex(WhereTable.COLUMN_TIME_OUT));
-            int placeId = cursor.getInt(cursor.getColumnIndex(WhereTable.COLUMN_PLACE_ID));
-            int trackId = cursor.getInt(cursor.getColumnIndex(WhereTable.COLUMN_TRACK_ID));
             int status = cursor.getInt(cursor.getColumnIndex(WhereTable.COLUMN_STATUS));
             String placeName = cursor.getString(cursor.getColumnIndex(PlaceTable.COLUMN_PLACE_NAME));
 
@@ -169,17 +167,8 @@ public class WhereListFragment extends Fragment implements LoaderManager.LoaderC
                 sec = totalTime / 1000 % 60;
             }
 
-            //holder.mPlaceNameTv.setText("Track ID: " + trackId + " Place ID: " + placeId + " " + placeName);
             holder.mPlaceNameTv.setText(placeName);
             holder.mTimeStampTv.setText(timeStamp);
-
-
-//
-//            long hrs = totalTime / (60 * 60 * 1000);
-//            long mins = totalTime / (60 * 1000) % 60;
-//            long sec = totalTime / 1000 % 60;
-
-
             holder.mDurationTv.setText(hrs + " hr " + mins + " min " + sec + " s");
         }
 

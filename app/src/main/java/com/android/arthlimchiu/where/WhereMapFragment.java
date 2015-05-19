@@ -2,6 +2,7 @@ package com.android.arthlimchiu.where;
 
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -18,11 +19,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCallback, LoaderManager.LoaderCallbacks<Cursor> {
+public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCallback, LoaderManager.LoaderCallbacks<Cursor>, GoogleMap.OnMapClickListener {
 
     private static int MAP_LOADER = 3;
 
@@ -92,6 +94,7 @@ public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+        mGoogleMap.setOnMapClickListener(this);
     }
 
     @Override
@@ -141,11 +144,23 @@ public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCa
         MarkerOptions options = new MarkerOptions();
         options.position(latLng);
         options.title(title);
+        CircleOptions circleOptions = new CircleOptions();
+        circleOptions.center(latLng);
+        circleOptions.strokeColor(0xFF0000FF);
+        circleOptions.strokeWidth(2);
+        circleOptions.fillColor(0x110000FF);
+        circleOptions.radius(100);
+        mGoogleMap.addCircle(circleOptions);
         mGoogleMap.addMarker(options);
     }
 
     private void moveCamera(LatLng latLng) {
         CameraUpdate movement = CameraUpdateFactory.newLatLngZoom(latLng, 18);
         mGoogleMap.animateCamera(movement);
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+
     }
 }

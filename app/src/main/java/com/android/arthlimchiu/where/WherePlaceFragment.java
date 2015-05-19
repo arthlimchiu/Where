@@ -65,13 +65,6 @@ public class WherePlaceFragment extends Fragment implements LoaderManager.Loader
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                FragmentManager fm = getActivity().getSupportFragmentManager();
-//                fm.beginTransaction()
-//                        .replace(R.id.fragment_where_place_list_container, new WhereNewPlaceFragment())
-//                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-//                        .addToBackStack(null)
-//                        .commit();
-//                fab.hide(true);
                 Intent intent = new Intent(getActivity(), WhereNewPlaceActivity.class);
                 startActivity(intent);
             }

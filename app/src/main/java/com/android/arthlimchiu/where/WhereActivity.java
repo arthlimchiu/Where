@@ -19,7 +19,7 @@ public class WhereActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_where);
 
-        mToolbar = (Toolbar) findViewById(R.id.activity_where_app_bar);
+        mToolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mToolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
