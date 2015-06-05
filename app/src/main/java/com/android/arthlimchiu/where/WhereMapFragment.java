@@ -1,19 +1,28 @@
 package com.android.arthlimchiu.where;
 
 
+import android.app.AlertDialog;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.arthlimchiu.where.contentprovider.WhereContentProvider;
 import com.android.arthlimchiu.where.database.PlaceTable;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,7 +33,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCallback, LoaderManager.LoaderCallbacks<Cursor>, GoogleMap.OnMapClickListener {
+public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCallback, LoaderManager.LoaderCallbacks<Cursor>, GoogleMap.OnMapClickListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private static int MAP_LOADER = 3;
 
@@ -32,25 +42,36 @@ public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCa
     public static final String KEY_PLACE_LATITUDE = "KEY_PLACE_LATITUDE";
     public static final String KEY_PLACE_LONGITUDE = "KEY_PLACE_LONGITUDE";
     public static final String KEY_MAP_VIEW = "KEY_MAP_VIEW";
+    public static final String KEY_MAP_CLICKABLE = "KEY_MAP_CLICKABLE";
 
     public static int MAP_BY_ID = 0;
     public static int MAP_BY_LATLNG = 1;
     public static int MAP_ALL = 2;
 
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+
     private GoogleMap mGoogleMap;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Location mCurrentLocation;
+    private MarkerOptions editableMarker;
+    private CircleOptions editableRadius;
 
     private int viewMapBy;
     private long id = -1;
     private double latitude, longitude;
+    private boolean isMapClickable;
 
     public WhereMapFragment() {
         // Required empty public constructor
     }
 
-    public static WhereMapFragment newInstance(long id, int viewMapBy) {
+    public static WhereMapFragment newInstance(long id, int viewMapBy, boolean isMapClickable) {
         Bundle args = new Bundle();
         args.putLong(KEY_PLACE_ID, id);
         args.putInt(KEY_MAP_VIEW, viewMapBy);
+        args.putBoolean(KEY_MAP_CLICKABLE, isMapClickable);
         WhereMapFragment fragment = new WhereMapFragment();
         fragment.setArguments(args);
 
@@ -73,13 +94,25 @@ public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getMapAsync(this);
-        Bundle args = getArguments();
-        if (args != null) {
-            id = args.getLong(KEY_PLACE_ID, -1);
-            latitude = args.getDouble(KEY_PLACE_LATITUDE);
-            longitude = args.getDouble(KEY_PLACE_LONGITUDE);
-            viewMapBy = args.getInt(KEY_MAP_VIEW);
-        }
+
+        buildGoogleApiClient();
+        editableMarker = new MarkerOptions();
+        editableRadius = new CircleOptions();
+
+//        Bundle args = getArguments();
+//        if (args != null) {
+//            id = args.getLong(KEY_PLACE_ID, -1);
+//            latitude = args.getDouble(KEY_PLACE_LATITUDE);
+//            longitude = args.getDouble(KEY_PLACE_LONGITUDE);
+//            viewMapBy = args.getInt(KEY_MAP_VIEW);
+//            isMapClickable = args.getBoolean(KEY_MAP_CLICKABLE);
+//        }
+//
+//        if (isMapClickable) {
+//            setHasOptionsMenu(true);
+//        }
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -90,11 +123,54 @@ public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCa
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().getSupportFragmentManager().popBackStack();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+
+//        if (isMapClickable) {
+//            mGoogleMap.setOnMapClickListener(this);
+//        }
+
         mGoogleMap.setOnMapClickListener(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mGoogleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            stopLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -108,36 +184,103 @@ public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        LatLng latLng;
-
-        while (data.moveToNext()) {
-            latLng = new LatLng(data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LATITUDE)), data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LONGITUDE)));
-
-            addMarker(latLng, data.getString(data.getColumnIndex(PlaceTable.COLUMN_PLACE_NAME)));
-        }
-
-        if (viewMapBy == MAP_BY_ID) {
-            String[] projection = {PlaceTable.COLUMN_LATITUDE, PlaceTable.COLUMN_LONGITUDE};
-            Cursor cursor = getActivity().getContentResolver()
-                    .query(Uri.withAppendedPath(WhereContentProvider.CONTENT_URI_PLACES, String.valueOf(id)), projection, null, null, null);
-            latLng = new LatLng(cursor.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LATITUDE)), cursor.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LONGITUDE)));
-            cursor.close();
-
-            moveCamera(latLng);
-        } else if (viewMapBy == MAP_BY_LATLNG) {
-            latLng = new LatLng(latitude, longitude);
-
-            moveCamera(latLng);
-        } else if (data.moveToFirst()) {
-            latLng = new LatLng(data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LATITUDE)), data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LONGITUDE)));
-
-            moveCamera(latLng);
-        }
+//        LatLng latLng;
+//
+//        while (data.moveToNext()) {
+//            latLng = new LatLng(data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LATITUDE)), data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LONGITUDE)));
+//
+//            addMarker(latLng, data.getString(data.getColumnIndex(PlaceTable.COLUMN_PLACE_NAME)));
+//        }
+//
+//        if (viewMapBy == MAP_BY_ID) {
+//            String[] projection = {PlaceTable.COLUMN_LATITUDE, PlaceTable.COLUMN_LONGITUDE};
+//            Cursor cursor = getActivity().getContentResolver()
+//                    .query(Uri.withAppendedPath(WhereContentProvider.CONTENT_URI_PLACES, String.valueOf(id)), projection, null, null, null);
+//            latLng = new LatLng(cursor.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LATITUDE)), cursor.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LONGITUDE)));
+//            cursor.close();
+//
+//            moveCamera(latLng);
+//        } else if (viewMapBy == MAP_BY_LATLNG) {
+//
+//            moveCamera(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+//
+//        } else if (data.moveToFirst()) {
+//            latLng = new LatLng(data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LATITUDE)), data.getDouble(data.getColumnIndex(PlaceTable.COLUMN_LONGITUDE)));
+//
+//            moveCamera(latLng);
+//        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        mGoogleMap.clear();
+        mCurrentLocation.setLatitude(latLng.latitude);
+        mCurrentLocation.setLongitude(latLng.longitude);
+        editableMarker.position(latLng);
+        editableRadius.center(latLng);
+        mGoogleMap.addMarker(editableMarker);
+        mGoogleMap.addCircle(editableRadius);
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        LatLng currentLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+        editableMarker.position(currentLatLng);
+        editableRadius.center(currentLatLng);
+        editableRadius.strokeColor(0xFF0000FF);
+        editableRadius.strokeWidth(2);
+        editableRadius.fillColor(0x110000FF);
+        editableRadius.radius(100);
+        mGoogleMap.addMarker(editableMarker);
+        mGoogleMap.addCircle(editableRadius);
+        moveCamera(currentLatLng);
+        stopLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        showErrorDialog();
+    }
+
+    private void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        createLocationRequest();
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    private void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    private void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
     private void addMarker(LatLng latLng, String title) {
@@ -159,8 +302,14 @@ public class WhereMapFragment extends SupportMapFragment implements OnMapReadyCa
         mGoogleMap.animateCamera(movement);
     }
 
-    @Override
-    public void onMapClick(LatLng latLng) {
+    private void showErrorDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
+        builder.setMessage(R.string.internet_connection_error);
+        builder.setPositiveButton(R.string.ok, null);
+
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
     }
 }

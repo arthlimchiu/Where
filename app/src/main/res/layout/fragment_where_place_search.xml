@@ -1,0 +1,79 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.android.arthlimchiu.where.WherePlaceSearchFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+
+        <Button
+            android:id="@+id/fragment_where_place_search_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/find_map"
+            android:textColor="@color/ColorAccent"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
+            android:gravity="center"
+            style="?android:attr/borderlessButtonStyle"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:layout_margin="16dp"
+                android:layout_gravity="center"
+                android:background="@android:color/darker_gray"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:gravity="center"
+                android:text="@string/or"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:layout_margin="16dp"
+                android:layout_gravity="center"
+                android:background="@android:color/darker_gray"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/fragment_where_place_search_nearby"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/find_nearby"
+            android:textColor="@color/ColorAccent"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
+            android:gravity="center"
+            style="?android:attr/borderlessButtonStyle"/>
+
+
+        <ImageView
+            android:id="@+id/google_attribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/powered_by_google_light"/>
+
+    </LinearLayout>
+
+</ScrollView>

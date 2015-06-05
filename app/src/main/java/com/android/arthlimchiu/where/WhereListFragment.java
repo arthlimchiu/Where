@@ -155,7 +155,7 @@ public class WhereListFragment extends Fragment implements LoaderManager.LoaderC
                 totalTime = System.currentTimeMillis() - timeIn;
                 timeStamp = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(timeIn) + "-Present";
                 hrs = TimeUnit.MILLISECONDS.toHours(totalTime);
-                mins = TimeUnit.MILLISECONDS.toMinutes(totalTime);
+                mins = TimeUnit.MILLISECONDS.toMinutes(totalTime) % 60;
                 sec = totalTime / 1000 % 60;
             } else {
                 totalTime = timeOut - timeIn;

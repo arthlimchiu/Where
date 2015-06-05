@@ -14,7 +14,6 @@ public class WhereNewPlaceActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_where_new_place);
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
 
         setSupportActionBar(toolbar);
@@ -25,7 +24,7 @@ public class WhereNewPlaceActivity extends ActionBarActivity {
         Fragment fragment = fm.findFragmentById(R.id.fragment_where_new_place_container);
 
         if (fragment == null) {
-            fragment = new WhereNewPlaceFragment();
+            fragment = new WherePlaceSearchFragment();
             fm.beginTransaction()
                     .add(R.id.fragment_where_new_place_container, fragment)
                     .commit();

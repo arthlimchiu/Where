@@ -11,11 +11,14 @@
     <string name="coordinates_title">Coordinates</string>
     <string name="latitude_hint">Latitude</string>
     <string name="longitude_hint">Longitude</string>
-    <string name="change_location">Find via Map</string>
+    <string name="find_map">Use Google Map</string>
     <string name="find_nearby">Find Nearby Places</string>
+    <string name="search_place">Search a place</string>
+    <string name="use_current_location">Use My Current Location</string>
 
     <string name="no_data">No data</string>
     <string name="empty_place_name">Please enter the name of the place</string>
+    <string name="internet_connection_error">Please check your internet connection.</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_where_detail">WhereDetailActivity</string>
@@ -24,6 +27,7 @@
 
     <string name="save">Save</string>
     <string name="ok">OK</string>
+    <string name="or">or</string>
 
     <string name="change">Change</string>
 

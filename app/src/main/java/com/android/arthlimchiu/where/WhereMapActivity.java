@@ -31,7 +31,7 @@ public class WhereMapActivity extends ActionBarActivity {
 
         if (fragment == null) {
             if (viewMapBy == WhereMapFragment.MAP_BY_ID) {
-                fragment = WhereMapFragment.newInstance(id, viewMapBy);
+                fragment = WhereMapFragment.newInstance(id, viewMapBy, false);
             } else if (viewMapBy == WhereMapFragment.MAP_BY_LATLNG) {
                 fragment = WhereMapFragment.newInstance(latitude, longitude, viewMapBy);
             }

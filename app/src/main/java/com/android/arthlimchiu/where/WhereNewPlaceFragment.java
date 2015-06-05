@@ -1,7 +1,6 @@
 package com.android.arthlimchiu.where;
 
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,10 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,25 +18,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.arthlimchiu.where.contentprovider.WhereContentProvider;
 import com.android.arthlimchiu.where.database.PlaceTable;
 import com.android.arthlimchiu.where.services.FetchAddressIntentService;
 import com.android.arthlimchiu.where.services.LoadGeofencesIntentService;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlacePicker;
 
 import java.util.Date;
 
@@ -48,35 +32,45 @@ import java.util.Date;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener{
+public class WhereNewPlaceFragment extends Fragment {
 
     private static final String TAG = "WhereNewPlaceFragment";
 
     public static final String ADDRESS_RECEIVER = "com.android.arthlimchiu.where.RECEIVER";
     public static final String LOCATION_EXTRA = "com.android.arthlimchiu.where.LOCATION_EXTRA";
     public static final String RESULT_DATA_KEY = "com.android.arthlimchiu.where.RESULT_DATA_KEY";
+    public static final String LATITUDE_KEY = "WhereNewPlaceFragment.LATITUDE_KEY";
+    public static final String LONGITUDE_KEY = "WhereNewPlaceFragment.LONGITUDE_KEY";
+    public static final String ADDRESS_KEY = "WhereNewPlaceFragment.ADDRESS_KEY";
+    public static final String PLACENAME_KEY = "WhereNewPlaceFragment.PLACENAME_KEY";
 
     public static int SUCCESS_RESULT = 0;
     public static int FAILURE_RESULT = 1;
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
-
-    private static final int REQUEST_PLACE_PICKER = 1;
-
     private EditText mPlaceNameEt;
     private TextView mAddressTv;
-    private Button mChngLocBtn, mFindNearby;
 
-    GoogleApiClient mGoogleApiClient;
-    LocationRequest mLocationRequest;
-    Location mCurrentLocation;
+    Location mLocation;
 
     double latitude, longitude;
+    String placeName, address;
 
     boolean canSave;
 
     private AddressReceiver mReceiver;
+
+    public static WhereNewPlaceFragment newInstance(double latitude, double longitude, String placeName, String address) {
+        Bundle args = new Bundle();
+        args.putDouble(LATITUDE_KEY, latitude);
+        args.putDouble(LONGITUDE_KEY, longitude);
+        args.putString(ADDRESS_KEY, address);
+        args.putString(PLACENAME_KEY, placeName);
+
+        WhereNewPlaceFragment fragment = new WhereNewPlaceFragment();
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     public WhereNewPlaceFragment() {
         // Required empty public constructor
@@ -90,11 +84,24 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
 
         mReceiver = new AddressReceiver(new Handler());
 
+        Bundle args = getArguments();
+        if (args != null) {
+            latitude = args.getDouble(LATITUDE_KEY);
+            longitude = args.getDouble(LONGITUDE_KEY);
+            placeName = args.getString(PLACENAME_KEY, "");
+            address = args.getString(ADDRESS_KEY, "");
+        }
+
+        if (TextUtils.isEmpty(address) || address.equals("")) {
+            mLocation = new Location("WhereNewPlaceFragment.Location");
+            mLocation.setLatitude(latitude);
+            mLocation.setLongitude(longitude);
+            startFetchingAddress(mLocation);
+        }
+
         setHasOptionsMenu(true);
 
         getActivity().setTitle("New Place");
-
-        buildGoogleApiClient();
     }
 
     @Override
@@ -104,51 +111,17 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
 
         mPlaceNameEt = (EditText) v.findViewById(R.id.fragment_where_new_place_placeName);
         mAddressTv = (TextView) v.findViewById(R.id.fragment_where_new_place_address);
-        mChngLocBtn = (Button) v.findViewById(R.id.fragment_where_new_place_location);
-        mChngLocBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), WhereMapActivity.class);
-                intent.putExtra(WhereMapFragment.KEY_MAP_VIEW, WhereMapFragment.MAP_BY_LATLNG);
-                intent.putExtra(WhereMapFragment.KEY_PLACE_LATITUDE, mCurrentLocation.getLatitude());
-                intent.putExtra(WhereMapFragment.KEY_PLACE_LONGITUDE, mCurrentLocation.getLongitude());
-                startActivity(intent);
-            }
-        });
-        mChngLocBtn.setVisibility(View.INVISIBLE);
-        mFindNearby = (Button) v.findViewById(R.id.fragment_where_new_place_nearby);
-        mFindNearby.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
-                    Intent intent = intentBuilder.build(getActivity());
 
-                    startActivityForResult(intent, REQUEST_PLACE_PICKER);
-                } catch (GooglePlayServicesRepairableException e) {
-                    GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), getActivity(), 0);
-                } catch (GooglePlayServicesNotAvailableException e) {
-                    Toast.makeText(getActivity(), "Google Play Services is not available.", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        if (!TextUtils.isEmpty(placeName) || !placeName.equals("")) {
+            mPlaceNameEt.setText(placeName);
+        }
+
+        if (!TextUtils.isEmpty(address) || !address.equals("")) {
+            mAddressTv.setText(address);
+            canSave = true;
+        }
 
         return v;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_PLACE_PICKER) {
-            if (resultCode == Activity.RESULT_OK) {
-                Place place = PlacePicker.getPlace(data, getActivity());
-
-                if (!TextUtils.isEmpty(place.getAddress())) {
-                    mAddressTv.setText(place.getAddress());
-                }
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     @Override
@@ -176,93 +149,21 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
                     getActivity().finish();
                     return true;
                 }
+            case android.R.id.home:
+                getActivity().getSupportFragmentManager().popBackStack();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mGoogleApiClient.isConnected()) {
-            startLocationUpdates();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mGoogleApiClient.isConnected()) {
-            stopLocationUpdates();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        startLocationUpdates();
-        Log.i(TAG, "Connected, starting location updates");
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
-        startFetchingAddress();
-        stopLocationUpdates();
-    }
-
-    private void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
-
-    private void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
-
-    private void startFetchingAddress() {
+    private void startFetchingAddress(Location location) {
         Intent intent = new Intent(getActivity(), FetchAddressIntentService.class);
 
         intent.putExtra(ADDRESS_RECEIVER, mReceiver);
-        intent.putExtra(LOCATION_EXTRA, mCurrentLocation);
+        intent.putExtra(LOCATION_EXTRA, location);
 
         getActivity().startService(intent);
-    }
-
-    private synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        createLocationRequest();
-    }
-
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     private void saveChanges() {
@@ -270,8 +171,8 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
 
         String placeName = mPlaceNameEt.getText().toString();
         String address = mAddressTv.getText().toString();
-        latitude = mCurrentLocation.getLatitude();
-        longitude = mCurrentLocation.getLongitude();
+//        latitude = mLocation.getLatitude();
+//        longitude = mLocation.getLongitude();
         long date = new Date().getTime();
 
         cv.put(PlaceTable.COLUMN_PLACE_NAME, placeName);
@@ -314,11 +215,9 @@ public class WhereNewPlaceFragment extends Fragment implements GoogleApiClient.C
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == FAILURE_RESULT) {
                 canSave = false;
-                mChngLocBtn.setVisibility(View.INVISIBLE);
                 getActivity().invalidateOptionsMenu();
             } else if (resultCode == SUCCESS_RESULT) {
                 canSave = true;
-                mChngLocBtn.setVisibility(View.VISIBLE);
                 getActivity().invalidateOptionsMenu();
             }
 
